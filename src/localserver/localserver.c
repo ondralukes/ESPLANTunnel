@@ -11,7 +11,6 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <fcntl.h>
-#include <pthread.h>
 
 #define PORT "3490"  // the port users will be connecting to
 
@@ -20,16 +19,9 @@
 char input[20100];
 size_t inputlen;
 char master;
-pthread_t thread_id;
-char stdinc;
 void HTTPReq(char*msg,size_t size,char start);
 size_t Decode(char* data,size_t size);
 size_t Encode(char* data,size_t size);
-void* async_read(){
-  while(1){
-   stdinc = getchar();
-  }
-}
 void sigchld_handler(int s)
 {
     // waitpid() might overwrite errno, so we save and restore it:
@@ -113,7 +105,6 @@ int main(void)
       if(strcmp(input,"COK") == 0) break;
     }
     printf("Connection OK\n");
-    while(1){
     printf("Entering CTL terminal\n");
 char *tmp = malloc(128);
     while(1){
@@ -136,30 +127,15 @@ char *tmp = malloc(128);
       }
     }
     }
-    fcntl(sockfd, F_SETFL, O_NONBLOCK);
     while(1) {  // main accept() loop
-        printf("Waiting for connection... Press ENTER to exit to CTL terminal\n");
+        printf("Waiting for connection...\n");
         sin_size = sizeof their_addr;
-        pthread_create(&thread_id,NULL,async_read,NULL);
-        while(1){
         new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
-        if(new_fd < 0){
-          if(errno !=EAGAIN&&errno!= EWOULDBLOCK){
+            fcntl(new_fd, F_SETFL, O_NONBLOCK);
+        if (new_fd == -1) {
             perror("accept");
-          }
-        if(stdinc != 0){
-          break;
+            continue;
         }
-        }
-
-        }
-        pthread_cancel(thread_id);
-        if(stdinc !=0){
-          stdinc = 0;
-
-          break;
-        }
-        fcntl(new_fd, F_SETFL, O_NONBLOCK);
 
         inet_ntop(their_addr.ss_family,
             get_in_addr((struct sockaddr *)&their_addr),
@@ -201,7 +177,7 @@ char *tmp = malloc(128);
         if(strcmp(input,"CDisconnected") == 0) break;
       }
     }
-  }
+
     return 0;
 }
 
