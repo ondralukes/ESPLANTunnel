@@ -9,6 +9,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/wait.h>
+#include <sys/time.h>
 #include <signal.h>
 #include <fcntl.h>
 
@@ -18,7 +19,6 @@
 
 char input[20100];
 size_t inputlen;
-char master;
 void HTTPReq(char*msg,size_t size,char start);
 size_t Decode(char* data,size_t size);
 size_t Encode(char* data,size_t size);
@@ -106,7 +106,8 @@ int main(void)
     }
     printf("Connection OK\n");
     printf("Entering CTL terminal\n");
-char *tmp = malloc(128);
+    char *tmp = malloc(128);
+    while(1){
     while(1){
 
       printf("CTL>");
@@ -126,9 +127,24 @@ char *tmp = malloc(128);
        }
       }
     }
-    }
+  }
     while(1) {  // main accept() loop
-        printf("Waiting for connection...\n");
+        printf("Waiting for connection...Type anything to switch back.\n");
+        struct timeval timeout;
+        fd_set fdset;
+        FD_ZERO(&fdset);
+        FD_SET(sockfd,&fdset);
+        FD_SET(STDIN_FILENO,&fdset);
+        int maxfd = (sockfd > STDIN_FILENO)?sockfd:STDIN_FILENO;
+        char brk = 0;
+        timeout.tv_sec = 1;
+        timeout.tv_usec = 0;
+        select(maxfd+1,&fdset,NULL,NULL,NULL);
+        if(FD_ISSET(STDIN_FILENO,&fdset)){
+          int c;
+           while ((getchar()) != '\n' && c != EOF);
+           break;
+         }
         sin_size = sizeof their_addr;
         new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
             fcntl(new_fd, F_SETFL, O_NONBLOCK);
@@ -177,7 +193,7 @@ char *tmp = malloc(128);
         if(strcmp(input,"CDisconnected") == 0) break;
       }
     }
-
+  }
     return 0;
 }
 
