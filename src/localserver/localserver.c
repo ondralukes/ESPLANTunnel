@@ -283,6 +283,11 @@ void HTTPReq(char*msg,size_t size,char start){
     if(input[0] == 'C'){
       input[inputlen] = '\0';
       printf("[RX][CTL] |%s\n",&input[1]);
+      if(strcmp(&input[1],"RESET") == 0){
+        printf("=========WARNING=========\n");
+        printf("Reset has occured, all timeouts has been resetted to their defaults.\n");
+        printf("=========================\n");
+      }
     } else if(input[0] == 'D'){
       printf("[RX][DATA]|(%lu bytes encoded, %lu bytes decoded)\n",rawlen-2,inputlen-2);
       ////////////////////DATA HEXDUMP
