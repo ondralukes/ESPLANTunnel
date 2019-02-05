@@ -1,6 +1,8 @@
 <?php
 error_reporting(0);
 clearstatcache();
+if(!isset($_GET["key"])) exit;
+if($_GET["key"] != "**********") exit;
 $miso = "mosi";
 $mosi = "miso";
 $inputraw = file_get_contents('php://input');

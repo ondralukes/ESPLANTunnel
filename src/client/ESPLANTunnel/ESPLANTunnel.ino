@@ -164,7 +164,7 @@ void setup() {
   Serial.println();
   Serial.println("Setup done!");
   strcpy(dataout,"CRESET");
-    
+
 }
 
 void loop() {
@@ -186,7 +186,7 @@ WiFiClient httpclient;
 HTTPClient http;
 Serial.print("Request");
 Serial.println(dataout);
-if(http.begin(httpclient,"http://ondralukes.cz/wifi/swr.php")){
+if(http.begin(httpclient,"http://ondralukes.cz/wifi/swr.php?key=*************")){
   http.addHeader("Content-Type", "text/plain");
   char tmp[10];
    sprintf(tmp, "%d", strlen(dataout));
@@ -287,7 +287,7 @@ void CTLExec(char * msg){
           if(i<3)dot=strchr(olddot+1,'.');
           *dot = '\0';
           ip[i] = atoi(olddot+1);
-          olddot = dot; 
+          olddot = dot;
           }
         uint16_t from = atoi(whs1 +1);
         uint16_t to = atoi(whs2+1);
@@ -316,14 +316,14 @@ void CTLExec(char * msg){
           char *whs0 = strchr(msg+8,' ');
           *whs0 = '\0';
           wdttime = atoi(whs0+1);
-          
+
           sprintf(dataout,"CWatchdog set to %ds",wdttime);
       } else if(strncmp(msg,"^Csettimeout",12)==0){
           dataout[0] = '\0';
           char *whs0 = strchr(msg+8,' ');
           *whs0 = '\0';
           client.setTimeout(atoi(whs0+1));
-          
+
           sprintf(dataout,"CTimeout set to %dms",atoi(whs0+1));
       } else if(strncmp(msg,"^Cconnect",9)==0){
           dataout[0] = '\0';
@@ -337,7 +337,7 @@ void CTLExec(char * msg){
           if(i<3)dot=strchr(olddot+1,'.');
           *dot = '\0';
           ip[i] = atoi(olddot+1);
-          olddot = dot; 
+          olddot = dot;
           }
         uint16_t port = atoi(whs1 +1);
         Serial.print("IP ");
@@ -352,7 +352,7 @@ void CTLExec(char * msg){
           }
       } else if(strncmp(msg,"^Cdisconnect",12)==0){
           dataout[0] = '\0';
-          client.stop(); 
+          client.stop();
           strcpy(dataout,"CDisconnected");
           connected = false;
       } else {
@@ -374,7 +374,7 @@ void SendData(char * msg){
   client.flush();
 }
 void ReadData(){
-  
+
   uint16_t count = 0;
   if(client.available()>0){
     Serial.println("Reading from client");

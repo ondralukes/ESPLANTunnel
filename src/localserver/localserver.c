@@ -201,7 +201,7 @@ void HTTPReq(char*msg,size_t size,char start){
   /* first what are we going to send and where are we going to send it? */
     int portno =        80;
     char *host =        "ondralukes.cz";
-    char *message_fmt = "POST /wifi/mwr.php HTTP/1.0\r\nHost: ondralukes.cz:80\r\nConnection: close\r\nContent-Length:%d\r\nContent-Type: text/plain\r\n\r\n%c";
+    char *message_fmt = "POST /wifi/mwr.php?key=********* HTTP/1.0\r\nHost: ondralukes.cz:80\r\nConnection: close\r\nContent-Length:%d\r\nContent-Type: text/plain\r\n\r\n%c";
 
     struct hostent *server;
     struct sockaddr_in serv_addr;
