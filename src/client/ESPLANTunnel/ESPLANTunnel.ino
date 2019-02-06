@@ -164,7 +164,6 @@ void setup() {
   Serial.println();
   Serial.println("Setup done!");
   strcpy(dataout,"CRESET");
-
 }
 
 void loop() {
@@ -355,6 +354,13 @@ void CTLExec(char * msg){
           client.stop();
           strcpy(dataout,"CDisconnected");
           connected = false;
+      } else if(strncmp(msg,"^Chostip",8)==0){
+         dataout[0] = '\0';
+        char *whs0 = strchr(msg+8,' ');
+        *whs0 = '\0';
+        IPAddress ip;
+        WiFi.hostByName(whs0+1,ip);
+        sprintf(dataout,"C%d.%d.%d.%d",ip[0],ip[1],ip[2],ip[3]);
       } else {
           strcpy(dataout,"CUnknown command");
           }

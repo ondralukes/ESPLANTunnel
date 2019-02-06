@@ -58,7 +58,10 @@ int main(void)
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE; // use my IP
-
+    printf("/*****************************************/\n");
+    printf("*        ESPLANTunnel local server        *\n");
+    printf("*Copyright © Ondřej Lukeš 2019 MIT License*\n");
+    printf("/*****************************************/\n");
     if ((rv = getaddrinfo(NULL, PORT, &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
@@ -106,6 +109,7 @@ int main(void)
     }
     printf("Connection OK\n");
     printf("Entering CTL terminal\n");
+    printf("Type 'help' for help\n");
     char *tmp = malloc(128);
     while(1){
     while(1){
@@ -118,6 +122,18 @@ int main(void)
       getline(&tmp, &size, stdin);
       *strchr(tmp,'\n') = '\0';
       if(strncmp(&tmp[0],"connect",7) == 0) break;
+      if(strncmp(&tmp[0],"help",4) == 0){
+        printf("Commands:\n");
+        printf("ipconfig - Prints IP, gateway and subnet mask\n");
+        printf("ipscan - Scans LAN and prints IP Addresses (Might take a long time)\n");
+        printf("portscan <ip> <from> <to> - Scans for open ports (Low timeout recommended)\n");
+        printf("setwdt <seconds> - Sets ESP watchdog timeout\n");
+        printf("settimeout <milliseconds> - Sets TCP connect timeout\n");
+        printf("connect <ip> <port> - Connects to TCP port\n");
+        printf("disconnect - Disconnects TCP connection\n");
+        printf("hostip <hostname> - Prints hostname's IP address\n");
+        continue;
+      }
       if(strlen(tmp) > 0){
       HTTPReq(&tmp[0],strlen(&tmp[0]),'C');
       while(1){
@@ -161,7 +177,12 @@ int main(void)
         while(1){
           HTTPReq("",0,'D');
           if(strcmp(input,"CConnected") == 0) break;
+          if(strcmp(input,"CFailed") == 0){
+            brk = 1;
+            break;
+          }
         }
+        if(brk == 1) break;
         while(1){
           if ((numbytes = recv(new_fd, buf, 1023, 0)) < 1) {
             if(errno!=EAGAIN&&errno!= EWOULDBLOCK || numbytes == 0){
